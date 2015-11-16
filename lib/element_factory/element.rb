@@ -48,7 +48,15 @@ module ElementFactory
     end
 
     def tag_middle
-      (children.map(&:to_html).join).html_safe
+      children.map! do |child|
+        if child.class ==  ActiveSupport::SafeBuffer
+        then
+          child.html_safe? ? child.to_str : nil
+        else
+          child
+        end
+      end.select{|element| !element.nil?}
+     (children.map{|child| child.class == String ? child : child.to_html }.join).html_safe
     end
 
     private
